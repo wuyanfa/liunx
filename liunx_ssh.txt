@@ -4,4 +4,30 @@
 
 使用ssh公钥实现免密码登录
 
-   
+    1.Linux下搭建ssh服务器
+    1.1 安装ssh
+        ssh软件由两部分组成：ssh服务端和ssh客户端。
+        ssh的配置文件在/etc/ssh/目录下，其中服务端的配置文件是sshd_config，客户端的配置文件是ssh_config.
+        安装ssh，在这里，只讲述通过yum安装的方法（前提是你的yum源配置正确，并且能使用）：
+        yum install openssh-* y
+    1.2 配置ssh服务器
+        根据ssh的两种验证方式，配置两种不能安全级别的登录方式。
+        ·通过口令验证方式登录
+        1.2.1 用vim编辑器打开sshd_config配置文件
+            vim /etc/ssh/sshd_config
+        1.2.2 对配置文件进行如下修改（根据自身实际情况可有所调整）
+            Port 22  //默认使用22端口，也可以自行修改为其他端口，但登录时要打上端口号
+            #ListenAddress   //指定提供ssh服务的IP，这里我注释掉。
+            PermitRootLogin   //禁止以root远程登录
+            PasswordAuthentication  yes  //启用口令验证方式
+            PermitEmptyPassword   //禁止使用空密码登录
+            LoginGraceTime  1m   //重复验证时间为1分钟
+            MaxAuthTimes   3    //最大重试验证次数
+            保存修改好的配置，退出。
+         1.2.3 重启sshd服务
+            # service sshd restart  通过密钥对验证方式登录
+     2 登录服务器
+          1.Linux客户机
+            # ssh 192.168.1.100   //输入服务器IP登录，不加用户名默认以root身份登录
+        　　或者
+        　　# ssh user1@192.168.1.100   //以user1身份登入服务器
