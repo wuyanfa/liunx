@@ -11,8 +11,7 @@
         安装ssh，在这里，只讲述通过yum安装的方法（前提是你的yum源配置正确，并且能使用）：
         yum install openssh-* y
     1.2 配置ssh服务器
-        根据ssh的两种验证方式，配置两种不能安全级别的登录方式。
-        ·通过口令验证方式登录
+        根据ssh的两种验证方式，配置两种不能安全级别的登录方式。通过口令验证方式登录
         1.2.1 用vim编辑器打开sshd_config配置文件
             vim /etc/ssh/sshd_config
         1.2.2 对配置文件进行如下修改（根据自身实际情况可有所调整）
@@ -26,8 +25,32 @@
             保存修改好的配置，退出。
          1.2.3 重启sshd服务
             # service sshd restart  通过密钥对验证方式登录
-     2 登录服务器
-          1.Linux客户机
+    2 登录服务器
+        1.Linux客户机
             # ssh 192.168.1.100   //输入服务器IP登录，不加用户名默认以root身份登录
         　　或者
         　　# ssh user1@192.168.1.100   //以user1身份登入服务器
+
+    3.使用ssh公钥实现免密码登录
+        ssh 无密码登录要使用公钥与私钥。linux下可以用用ssh-keygen生成公钥/私钥对，下面我以CentOS为例。
+        有机器A(192.168.1.155)，B(192.168.1.181)。现想A通过ssh免密码登录到B。
+        首先以root账户登陆为例。
+        3.1 在A机下生成公钥/私钥对。
+            ssh-keygen -t rsa -P ''
+            -P表示密码，-P '' 就表示空密码，也可以不用-P参数，这样就要三车回车，用-P就一次回车。
+            该命令将在/root/.ssh目录下面产生一对密钥id_rsa和id_rsa.pub。
+            一般采用的ssh的rsa密钥:
+            id_rsa     私钥
+            id_rsa.pub 公钥
+            下述命令产生不同类型的密钥
+            ssh-keygen -t dsa
+            ssh-keygen -t rsa
+            ssh-keygen -t rsa1
+        3.2 把A机下的/root/.ssh/id_rsa.pub 复制到B机的 /root/.ssh/authorized_keys文件里，先要在B机上创建好 /root/.ssh 这个目录，用scp复制
+            scp /root/.ssh/id_rsa.pub root@192.168.1.181:/root/.ssh/authorized_keys
+
+        3.3 authorized_keys的权限要是600!!!
+            chmod 600 /root/.ssh/authorized_keys
+
+        3.4 A机登录B机。
+            ssh -l root 192.168.1.181
