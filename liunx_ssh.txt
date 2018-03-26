@@ -54,3 +54,6 @@
 
         3.4 A机登录B机。
             ssh -l root 192.168.1.181
+
+    4. ssh 默认端口是 22 参数 p
+        ssh -p 22 user@ip
